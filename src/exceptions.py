@@ -16,3 +16,7 @@ class TurnoEnElPasadoError(Exception):
 class TurnoDuplicadoError(Exception):
     def __init__(self, fecha_hora):
         super().__init__(f'El médico ya tiene un turno asignado en ese horario ({fecha_hora}).')
+
+class RecetaInvalidaError(Exception):
+    def __init__(self):
+        super().__init__(f'Receta inválida')
