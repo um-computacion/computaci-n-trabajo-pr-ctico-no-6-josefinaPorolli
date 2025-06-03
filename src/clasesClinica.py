@@ -154,3 +154,73 @@ class Clinica:
         receta = Receta(paciente, medico, medicamentos, fecha)
         self.__historias_clinicas__[dni].agregar_receta(receta)
         return receta
+    
+    # Acceso a información
+    def obtener_pacientes(self) -> list[Paciente]:
+        return self.__pacientes__
+    
+    def obtener_medicos(self) -> list[Medico]:
+        return self.__medicos__
+    
+    def obtener_medico_por_matricula(self, matricula:str) -> Medico:
+        if matricula in self.__medicos__: # Vertifica si el médico existe
+            return self.__medicos__[matricula]
+        else:
+            raise MedicoNoExisteError(matricula) # Si no existe, lanza una excepción
+        
+    def obtener_turnos(self) -> list[Turno]:
+        return self.__turnos__
+    
+    def obtener_historia_clinica_por_dni(self, dni: str) -> HistoriaClinica:
+        if dni in self.__historias_clinicas__: # Verifica si el paciente existe
+            return self.__historias_clinicas__[dni]
+        else:
+            raise PacienteNoExisteError(dni) # Si no existe, lanza una excepción
+        
+    # Validaciones y utilidades
+    def validar_existencia_paciente(self, dni: str) -> bool: # verifica si el paciente está registrado
+        if dni in self.__pacientes__:
+            return True
+        else:
+            raise PacienteNoExisteError(dni) # Podría solo tirar false, pero queda más bonita mi excepción je
+        
+    def validar_existencia_medico(self, matricula: str) -> bool: # verifica si el médico está registrado
+        if matricula in self.__medicos__:
+            return True
+        else:
+            raise MedicoNoExisteError(matricula)
+        
+    def validar_turno_no_duplicado(self, fecha_hora: datetime) -> bool: # verifica si un turno es válido y no está duplicado
+        for turno in self.__turnos__:
+            if turno.obtener_fecha_hora() == fecha_hora:
+                raise TurnoDuplicadoError(fecha_hora)
+            else:
+                return True
+            
+    def obtener_dia_semana_en_espanol(self, fecha: datetime) -> str: # traduce un objeto datetime a un día de la semana en español
+        dias_semana = {
+            0: 'Lunes',
+            1: 'Martes',
+            2: 'Miércoles',
+            3: 'Jueves',
+            4: 'Viernes',
+            5: 'Sábado',
+            6: 'Domingo'
+        }
+        return dias_semana[fecha.weekday()]
+    
+    def obtener_especialidad_disponible(self, medico:Medico, dia_semana:str) -> str: # obtiene la especialidad disponible para un médico en un día específico
+        especialidad = medico.obtener_especialidad()
+        if especialidad.verificar_dia(dia_semana):
+            return especialidad.obtener_especialidad()
+        else:
+            raise ValueError(f'La especialidad {especialidad.obtener_especialidad()} no está disponible el {dia_semana}.')
+        
+    def validar_especialidad_en_dia(self, medico: Medico, dia_semana: str) -> bool: # verifica que el médico atienda esa especialidad en ese día
+        especialidad = medico.obtener_especialidad()
+        if especialidad.verificar_dia(dia_semana):
+            return True
+        else:
+            raise ValueError(f'El médico {medico.obtener_matricula()} no tiene turnos disponibles para la especialidad {especialidad.obtener_especialidad()} el {dia_semana}.')
+        
+    
